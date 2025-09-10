@@ -7,7 +7,7 @@ from server import *
 from onslaught import *
 
 
-st.set_page_config(page_title="tmtAddon", layout="wide", page_icon=":frog:")
+st.set_page_config(page_title="tomadon", layout="wide", page_icon=":frog:")
 
 
 def main():

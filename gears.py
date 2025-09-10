@@ -244,11 +244,8 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
 
     if widget == 'sc':
         if md:
-            options_dict = {
-                #
-                f"![](app/static/{column.lower()}/{str(v).lower()}.webp)": v # # SERVER page, column "nation"...
-                for v in unique_vals
-            }
+            # options_dict = {f"![](app/static/{column.lower()}/{str(v).lower()}.webp)": v for v in unique_vals}
+            options_dict = {f"![](app/static/column/{v}.webp)": v for v in unique_vals}
             options = list(options_dict.keys())
         
         selected = st.segmented_control(

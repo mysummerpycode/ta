@@ -231,7 +231,4 @@ def compare():
         table2 = cRecent['name'].unique().tolist()
         difference1 = [item for item in table1 if item not in table2]
         
-
         st.markdown(f" #### overall <=> recent: {difference1}")
-        
-        st.markdown("![](app/static/class/TD.webp)")

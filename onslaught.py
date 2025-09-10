@@ -87,6 +87,8 @@ def onslaught():
             st.table(correlation_final['x̄ Delta'].sort_values(ascending=False).tail(3))
 
         st.subheader("Session statistics")
+        
+        st.table(onslS.head(10))
         # ========== FILTER1 ==========
         with st.container(border=True, width="stretch", horizontal_alignment="center", vertical_alignment="center", gap="small"):
             applyFilter(onslS, "battle_time", group1, widget="dr")
@@ -104,7 +106,7 @@ def onslaught():
         c1, c2, c3, c4, c5, c6, c7 = st.columns(7, gap="small", border=False, vertical_alignment="top", width='stretch')
         with c1:
             with st.container(border=True, width="stretch", horizontal_alignment="center", vertical_alignment="bottom", gap="small"):
-                st.subheader("Battles", anchor=False, width="content")
+                st.subheader("BTTLS", anchor=False, width="content")
                 st.subheader(f"{len(onslS_filtered)}", anchor=False, width="content")
         with c2:
             with st.container(border=True, width="stretch", horizontal_alignment="center", vertical_alignment="top", gap="small"):

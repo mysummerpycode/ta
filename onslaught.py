@@ -88,7 +88,6 @@ def onslaught():
 
         st.subheader("Session statistics")
         
-        st.table(onslS.head(10))
         # ========== FILTER1 ==========
         with st.container(border=True, width="stretch", horizontal_alignment="center", vertical_alignment="center", gap="small"):
             applyFilter(onslS, "battle_time", group1, widget="dr")

@@ -152,11 +152,11 @@ def addIconColumn(df, source_col, new_col, path, dep_col=None):
     """
     if dep_col:
         df[new_col] = df.apply(
-            lambda row: f"app/static/{path}/{'prem' if row[dep_col] else ''}{row[source_col]}.webp",
+            lambda row: f"app/static/{re.escape(path)}/{'prem' if re.escape(row[dep_col]) else ''}{re.escape(row[source_col])}.webp",
             axis=1
         )
     else:
-        df[new_col] = df[source_col].apply(lambda v: f"app/static/{path}/{v}.webp")
+        df[new_col] = df[source_col].apply(lambda v: f"app/static/{re.escape(path)}/{re.escape(v)}.webp")
     return df
 
 
@@ -244,8 +244,6 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
 
     if widget == 'sc':
         if md:
-            # options_dict = {f"![](app/static/{column.lower()}/{str(v).lower()}.webp)": v for v in unique_vals}
-            # options_dict = {f"![](app/static/column/{v}.webp)": v for v in unique_vals}
             options_dict = {
                 f"![](app/static/{re.escape(column)}/{re.escape(str(v))}.webp)": v
                 for v in unique_vals

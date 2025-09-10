@@ -213,18 +213,35 @@ def resetFilters(group: str):
     st.session_state.reset_trigger += 1
 
 
+# def getUniqueSortedValues(df, column):
+#     """Caches and returns sorted unique values."""
+#     values = df[column].dropna().unique()
+
+#     def sort_key(x):
+#         # numbers are sorted as numbers...
+#         if isinstance(x, (int, float)):
+#             return (0, x)
+#         # lines come after numbers
+#         return (1, str(x))
+
+#     return sorted(values, key=sort_key)
+
 def getUniqueSortedValues(df, column):
-    """Caches and returns sorted unique values."""
+#     """Caches and returns sorted unique values."""
     values = df[column].dropna().unique()
 
+    normalized_values = [
+        v.lower() if isinstance(v, str) else v
+        for v in values
+    ]
+
     def sort_key(x):
-        # numbers are sorted as numbers...
         if isinstance(x, (int, float)):
             return (0, x)
-        # lines come after numbers
         return (1, str(x))
 
-    return sorted(values, key=sort_key)
+    return sorted(normalized_values, key=sort_key)
+
 
 
 def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):

@@ -197,135 +197,6 @@ def resetFilters(group: str):
     st.session_state.reset_trigger += 1
 
 
-# def getUniqueSortedValues(df, column):
-#     """Caches and returns sorted unique values."""
-#     values = df[column].dropna().unique()
-
-#     def sort_key(x):
-#         # numbers are sorted as numbers...
-#         if isinstance(x, (int, float)):
-#             return (0, x)
-#         # lines come after numbers
-#         return (1, str(x))
-
-#     return sorted(values, key=sort_key)
-
-
-
-# def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
-#     if key is None:
-#         key = f"{column}_{group}_{widget}"
-#     st.session_state.registered_filters.setdefault(group, {})[key] = column
-#     unique_vals = getUniqueSortedValues(df, column)
-
-#     st.session_state.filters.setdefault(key, [])
-
-#     options = unique_vals
-#     selected = []
-
-#     if widget == 'sc':
-#         if md:
-#             options_dict = {
-#                 f"![](app/static/{column}/{(str(v))}.webp)": v
-#                 for v in unique_vals
-#             }
-#             options = list(options_dict.keys())
-
-#         selected = st.segmented_control(
-#             label=column,
-#             options=sorted(options),
-#             key=f"{key}_{st.session_state.reset_trigger}",
-#             selection_mode="multi",
-#             label_visibility=lv,
-#         )
-#         if md:
-#             st.session_state.filters[key] = [options_dict[s] for s in selected]
-#         else:
-#             st.session_state.filters[key] = selected      
-#     elif widget == 'sb':
-#         options = ["All"] + unique_vals
-#         selected = st.selectbox(
-#             label=column,
-#             options=options,
-#             key=f"{key}_{st.session_state.reset_trigger}",
-#             label_visibility=lv,
-#             placeholder=ph
-#         )
-        
-#         if selected == "All":
-#             st.session_state.filters[key] = []
-#         else:
-#             st.session_state.filters[key] = [selected]
-
-#     elif widget == 'ms':
-#         selected = st.multiselect(
-#             label=column,
-#             options=unique_vals,
-#             key=f"{key}_{st.session_state.reset_trigger}",
-#             label_visibility=lv,
-#             placeholder=ph
-#         )
-#         st.session_state.filters[key] = selected
-
-#     elif widget == "ss":
-#         min_val = 0
-#         max_val = max(unique_vals)
-
-#         selected = st.slider(
-#             label=column,
-#             min_value=min_val,
-#             max_value=max_val,
-#             value=(min_val, max_val),
-#             key=f"{key}_{st.session_state.reset_trigger}",
-#             label_visibility=lv,
-#         )
-#         st.session_state.filters[key] = selected
-    
-#     elif widget == "dr":
-#         # сonvert column to datetime (preserving UTC)
-#         df[column] = pd.to_datetime(df[column], errors="coerce", utc=True)
-
-#         min_date = df[column].min().to_pydatetime()
-#         max_date = df[column].max().to_pydatetime()
-
-#         # save as strings for session_state
-#         st.session_state.filters.setdefault(key, (str(min_date), str(max_date)))
-
-#         selected = st.slider(
-#             label=column,
-#             min_value=min_date,
-#             max_value=max_date,
-#             value=(min_date, max_date),
-#             format="YYYY-MM-DD",
-#             key=f"{key}_{st.session_state.reset_trigger}",
-#             label_visibility=lv,
-#         )
-
-#         # put strings into the session, but return datetime
-#         st.session_state.filters[key] = (str(selected[0]), str(selected[1]))
-#         # return selected
-        
-#     return st.session_state.filters[key]
-
-
-
-# @st.cache_data(show_spinner=True)
-# def addIconColumn(df, source_col, new_col, path, dep_col=None):
-#     """
-#     Adds a new column with a markdown icon to df.
-#     prem_col — if there is a dependency (e.g. class + isPrem).
-#     """
-#     if dep_col:
-#         df[new_col] = df.apply(
-#             lambda row: f"app/static/{path}/{'prem' if row[dep_col] else ''}{row[source_col]}.webp",
-#             axis=1
-#         )
-#     else:
-#         df[new_col] = df[source_col].apply(lambda v: f"app/static/{path}/{v}.webp")
-#     return df
-
-
-
 def addIconColumn(df, source_col, new_col, path, dep_col=None):
     """
     Adds a new column with a markdown icon to df.
@@ -357,7 +228,7 @@ def getUniqueSortedValues(df, column):
         # strings sorted case-insensitive
         return (1, str(x).lower())
 
-    # возвращаем список с оригинальными значениями, но без дубликатов по нижнему регистру
+    # new one
     seen = {}
     for v in values:
         key = normalize(v)

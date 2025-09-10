@@ -156,7 +156,7 @@ def addIconColumn(df, source_col, new_col, path, dep_col=None):
             axis=1
         )
     else:
-        df[new_col] = df[source_col].apply(lambda v: f"app/static/{re.escape(path)}/{re.escape(v)}.webp")
+        df[new_col] = df[source_col].apply(lambda v: f"app/static/{path}/{re.escape(v)}.webp")
     return df
 
 

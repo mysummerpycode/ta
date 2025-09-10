@@ -2,7 +2,6 @@ import requests
 import re
 import streamlit as st
 import pandas as pd
-import os
 
 APP_ID = st.secrets["APP_ID"]
 link = st.secrets["LINK"]
@@ -324,22 +323,10 @@ def getUniqueSortedValues(df, column):
 #     return st.session_state.filters[key]
 
 def normalize_val(v):
-    """Привести значение к строке нижнего регистра для сравнения"""
+    """Привести значение к строке нижнего регистра"""
     if isinstance(v, str):
         return v.lower()
     return str(v).lower()
-
-def find_file_case_insensitive(path, filename):
-    """Поиск файла без учёта регистра"""
-    folder = os.path.join("app", "static", path)
-    fname_norm = normalize_val(filename)
-    if not os.path.isdir(folder):
-        return None
-    
-    for f in os.listdir(folder):
-        if normalize_val(f).split(".")[0] == fname_norm:  # сравнение имени без расширения
-            return os.path.join(folder, f)
-    return None
 
 def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
     if key is None:
@@ -354,13 +341,11 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
 
     if widget == 'sc':
         if md:
-            options_dict = {}
-            for v in unique_vals:
-                file_path = find_file_case_insensitive(column, v)
-                if file_path:
-                    options_dict[f"![]({file_path})"] = v
-                else:
-                    options_dict[str(v)] = v  # fallback без картинки
+            options_dict = {
+                # всегда кладём файл в нижнем регистре
+                f"![](app/static/{column}/{normalize_val(v)}.webp)": v
+                for v in unique_vals
+            }
             options = list(options_dict.keys())
 
         selected = st.segmented_control(
@@ -415,13 +400,12 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
         st.session_state.filters[key] = selected
     
     elif widget == "dr":
-        # сonvert column to datetime (preserving UTC)
+        # convert column to datetime (preserving UTC)
         df[column] = pd.to_datetime(df[column], errors="coerce", utc=True)
 
         min_date = df[column].min().to_pydatetime()
         max_date = df[column].max().to_pydatetime()
 
-        # save as strings for session_state
         st.session_state.filters.setdefault(key, (str(min_date), str(max_date)))
 
         selected = st.slider(
@@ -434,12 +418,12 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
             label_visibility=lv,
         )
 
-        # put strings into the session, but return datetime
         st.session_state.filters[key] = (str(selected[0]), str(selected[1]))
         
     return st.session_state.filters[key]
 
 
+# ==============================
 def get_filter_mask(df, group):
     """General filter by group"""
     mask = pd.Series(True, index=df.index)

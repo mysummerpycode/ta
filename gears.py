@@ -227,33 +227,11 @@ def getUniqueSortedValues(df, column):
     return sorted(values, key=sort_key)
 
 
-# def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
-#     if key is None:
-#         key = f"{column}_{group}_{widget}"
-#     st.session_state.registered_filters.setdefault(group, {})[key] = column
-#     unique_vals = getUniqueSortedValues(df, column)
-
-#     st.session_state.filters.setdefault(key, [])
-
-#     options = unique_vals
-#     selected = []
-
-#     if widget == 'sc':
-#         if md:
-#             options_dict = {
-#                 f"![](app/static/{column}/{(str(v))}.webp)": v
-#                 for v in unique_vals
-#             }
-#             options = list(options_dict.keys())
 def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
-    column_lower = column.lower()
-
     if key is None:
-        key = f"{column_lower}_{group}_{widget}"
-    st.session_state.registered_filters.setdefault(group, {})[key] = column_lower
-    
-    df[column_lower] = df[column].astype(str).str.lower()
-    unique_vals = getUniqueSortedValues(df, column_lower)
+        key = f"{column}_{group}_{widget}"
+    st.session_state.registered_filters.setdefault(group, {})[key] = column
+    unique_vals = getUniqueSortedValues(df, column)
 
     st.session_state.filters.setdefault(key, [])
 
@@ -263,11 +241,11 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
     if widget == 'sc':
         if md:
             options_dict = {
-                f"![](app/static/{column_lower}/{(str(v)).lower()}.webp)": v
+                f"![](app/static/{column.lower()}/{(str(v.lower()))}.webp)": v
                 for v in unique_vals
             }
             options = list(options_dict.keys())
-        
+
         selected = st.segmented_control(
             label=column,
             options=sorted(options),

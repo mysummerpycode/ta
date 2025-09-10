@@ -235,17 +235,13 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
 
     st.session_state.filters.setdefault(key, [])
 
-    # SERVER page, column "nation"
-    # values are in lower case, but we need them in upper case
-    # because of t_sOverall and t_sRecent. Fix this sometime...
-
     options = unique_vals
     selected = []
 
     if widget == 'sc':
         if md:
             options_dict = {
-                f"![](app/static/{column}/{re.escape(str(v))}.webp)": v
+                f"![](app/static/{column}/{re.IGNORECASE(str(v))}.webp)": v
                 for v in unique_vals
             }
             options = list(options_dict.keys())

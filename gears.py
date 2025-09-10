@@ -2,6 +2,7 @@ import requests
 import re
 import streamlit as st
 import pandas as pd
+import os
 
 APP_ID = st.secrets["APP_ID"]
 link = st.secrets["LINK"]
@@ -241,7 +242,7 @@ def getUniqueSortedValues(df, column):
 #     if widget == 'sc':
 #         if md:
 #             options_dict = {
-#                 f"![](app/static/{column}/{(str(v.lower()))}.webp)": v
+#                 f"![](app/static/{column}/{(str(v))}.webp)": v
 #                 for v in unique_vals
 #             }
 #             options = list(options_dict.keys())
@@ -256,44 +257,124 @@ def getUniqueSortedValues(df, column):
 #         if md:
 #             st.session_state.filters[key] = [options_dict[s] for s in selected]
 #         else:
-#             st.session_state.filters[key] = selected
+#             st.session_state.filters[key] = selected      
+#     elif widget == 'sb':
+#         options = ["All"] + unique_vals
+#         selected = st.selectbox(
+#             label=column,
+#             options=options,
+#             key=f"{key}_{st.session_state.reset_trigger}",
+#             label_visibility=lv,
+#             placeholder=ph
+#         )
+        
+#         if selected == "All":
+#             st.session_state.filters[key] = []
+#         else:
+#             st.session_state.filters[key] = [selected]
+
+#     elif widget == 'ms':
+#         selected = st.multiselect(
+#             label=column,
+#             options=unique_vals,
+#             key=f"{key}_{st.session_state.reset_trigger}",
+#             label_visibility=lv,
+#             placeholder=ph
+#         )
+#         st.session_state.filters[key] = selected
+
+#     elif widget == "ss":
+#         min_val = 0
+#         max_val = max(unique_vals)
+
+#         selected = st.slider(
+#             label=column,
+#             min_value=min_val,
+#             max_value=max_val,
+#             value=(min_val, max_val),
+#             key=f"{key}_{st.session_state.reset_trigger}",
+#             label_visibility=lv,
+#         )
+#         st.session_state.filters[key] = selected
+    
+#     elif widget == "dr":
+#         # сonvert column to datetime (preserving UTC)
+#         df[column] = pd.to_datetime(df[column], errors="coerce", utc=True)
+
+#         min_date = df[column].min().to_pydatetime()
+#         max_date = df[column].max().to_pydatetime()
+
+#         # save as strings for session_state
+#         st.session_state.filters.setdefault(key, (str(min_date), str(max_date)))
+
+#         selected = st.slider(
+#             label=column,
+#             min_value=min_date,
+#             max_value=max_date,
+#             value=(min_date, max_date),
+#             format="YYYY-MM-DD",
+#             key=f"{key}_{st.session_state.reset_trigger}",
+#             label_visibility=lv,
+#         )
+
+#         # put strings into the session, but return datetime
+#         st.session_state.filters[key] = (str(selected[0]), str(selected[1]))
+#         # return selected
+        
+#     return st.session_state.filters[key]
+
+def normalize_val(v):
+    """Привести значение к строке нижнего регистра для сравнения"""
+    if isinstance(v, str):
+        return v.lower()
+    return str(v).lower()
+
+def find_file_case_insensitive(path, filename):
+    """Поиск файла без учёта регистра"""
+    folder = os.path.join("app", "static", path)
+    fname_norm = normalize_val(filename)
+    if not os.path.isdir(folder):
+        return None
+    
+    for f in os.listdir(folder):
+        if normalize_val(f).split(".")[0] == fname_norm:  # сравнение имени без расширения
+            return os.path.join(folder, f)
+    return None
+
 def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
-
-    normalized_column = str(column).lower()
-
     if key is None:
-        key = f"{normalized_column}_{group}_{widget}"
-    
-    st.session_state.registered_filters.setdefault(group, {})[key] = normalized_column
-    
-    unique_vals = [str(v).lower() for v in getUniqueSortedValues(df, normalized_column)]
+        key = f"{column}_{group}_{widget}"
+    st.session_state.registered_filters.setdefault(group, {})[key] = column
+    unique_vals = getUniqueSortedValues(df, column)
 
     st.session_state.filters.setdefault(key, [])
-    
+
     options = unique_vals
     selected = []
 
     if widget == 'sc':
         if md:
-            options_dict = {
-                f"![](app/static/{normalized_column}/{(str(v).lower())}.webp)": v
-                for v in unique_vals
-            }
+            options_dict = {}
+            for v in unique_vals:
+                file_path = find_file_case_insensitive(column, v)
+                if file_path:
+                    options_dict[f"![]({file_path})"] = v
+                else:
+                    options_dict[str(v)] = v  # fallback без картинки
             options = list(options_dict.keys())
 
         selected = st.segmented_control(
             label=column,
-            options=sorted(options),
+            options=sorted(options, key=lambda x: normalize_val(x)),
             key=f"{key}_{st.session_state.reset_trigger}",
             selection_mode="multi",
             label_visibility=lv,
         )
-
         if md:
             st.session_state.filters[key] = [options_dict[s] for s in selected]
         else:
-            st.session_state.filters[key] = [str(s).lower() for s in selected]
-            
+            st.session_state.filters[key] = selected      
+
     elif widget == 'sb':
         options = ["All"] + unique_vals
         selected = st.selectbox(
@@ -355,7 +436,6 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
 
         # put strings into the session, but return datetime
         st.session_state.filters[key] = (str(selected[0]), str(selected[1]))
-        # return selected
         
     return st.session_state.filters[key]
 

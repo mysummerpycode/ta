@@ -1,0 +1,6 @@
+[server]
+port = 8501
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false

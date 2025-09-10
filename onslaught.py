@@ -129,7 +129,7 @@ def onslaught():
                 st.subheader(f"{onslS_filtered[['damage']].mean().item():.0f}", anchor=False, width="content")
         with c7:
             with st.container(border=True, width="stretch", horizontal_alignment="center", vertical_alignment="top", gap="small"):
-                st.subheader("RTNG", anchor=False, width="content", help="could be lie")
+                st.subheader("RTNG", anchor=False, width="content")
                 st.subheader(f"{onslS_filtered[['onslaught_delta']].sum().item():.0f}", anchor=False, width="content")
         # ===============================
 

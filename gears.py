@@ -227,21 +227,56 @@ def getUniqueSortedValues(df, column):
     return sorted(values, key=sort_key)
 
 
+# def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
+#     if key is None:
+#         key = f"{column}_{group}_{widget}"
+#     st.session_state.registered_filters.setdefault(group, {})[key] = column
+#     unique_vals = getUniqueSortedValues(df, column)
+
+#     st.session_state.filters.setdefault(key, [])
+
+#     options = unique_vals
+#     selected = []
+
+#     if widget == 'sc':
+#         if md:
+#             options_dict = {
+#                 f"![](app/static/{column}/{(str(v.lower()))}.webp)": v
+#                 for v in unique_vals
+#             }
+#             options = list(options_dict.keys())
+
+#         selected = st.segmented_control(
+#             label=column,
+#             options=sorted(options),
+#             key=f"{key}_{st.session_state.reset_trigger}",
+#             selection_mode="multi",
+#             label_visibility=lv,
+#         )
+#         if md:
+#             st.session_state.filters[key] = [options_dict[s] for s in selected]
+#         else:
+#             st.session_state.filters[key] = selected
 def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=None, key=None):
+
+    normalized_column = str(column).lower()
+
     if key is None:
-        key = f"{column}_{group}_{widget}"
-    st.session_state.registered_filters.setdefault(group, {})[key] = column
-    unique_vals = getUniqueSortedValues(df, column)
+        key = f"{normalized_column}_{group}_{widget}"
+    
+    st.session_state.registered_filters.setdefault(group, {})[key] = normalized_column
+    
+    unique_vals = [str(v).lower() for v in getUniqueSortedValues(df, normalized_column)]
 
     st.session_state.filters.setdefault(key, [])
-
+    
     options = unique_vals
     selected = []
 
     if widget == 'sc':
         if md:
             options_dict = {
-                f"![](app/static/{column}/{(str(v.lower()))}.webp)": v
+                f"![](app/static/{normalized_column}/{(str(v).lower())}.webp)": v
                 for v in unique_vals
             }
             options = list(options_dict.keys())
@@ -253,10 +288,11 @@ def applyFilter(df, column, group, widget='sc', md=False, lv="collapsed", ph=Non
             selection_mode="multi",
             label_visibility=lv,
         )
+
         if md:
             st.session_state.filters[key] = [options_dict[s] for s in selected]
         else:
-            st.session_state.filters[key] = selected
+            st.session_state.filters[key] = [str(s).lower() for s in selected]
             
     elif widget == 'sb':
         options = ["All"] + unique_vals
